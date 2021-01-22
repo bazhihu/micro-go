@@ -6,6 +6,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"micro-go/discover"
 )
 
 type Service interface {
@@ -17,11 +19,31 @@ type Service interface {
 	DiscoveryService(ctx context.Context, serviceName string) ([]interface{}, error)
 }
 
+var ErrNotServiceInstances = errors.New("instances are not existed")
+
 type DiscoveryServiceImpl struct {
+	discoveryClient discover.DiscoveryClient
 }
 
+func NewDiscoveryServiceImpl(discoveryClient discover.DiscoveryClient) Service {
+	return &DiscoveryServiceImpl{discoveryClient: discoveryClient}
+}
+
+// 健康服务的健康状态
+func (service *DiscoveryServiceImpl) HealthCheck() bool {
+	return true
+}
+
+// 打招呼
+func (service *DiscoveryServiceImpl) SaveHello() string {
+	return "Hello World"
+}
+
+// 服务发现
 func (service *DiscoveryServiceImpl) DiscoveryService(ctx context.Context, serviceName string) ([]interface{}, error) {
 	// 从consul中根据服务名获取服务实例列表
+
+	//instances := service.discoveryClient.DiscoveryServices(serviceName, config.logg)
 
 	return nil, nil
 }

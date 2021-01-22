@@ -8,8 +8,6 @@ import (
 	"github.com/go-kit/kit/transport"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"gopkg.in/mgo.v2/bson"
-
 	endpts "micro-go/endpoint"
 	"net/http"
 )
@@ -32,14 +30,34 @@ func MakeHttpHandler(ctx context.Context, endpoints endpts.DiscoveryEndpoints, l
 	}
 
 	r.Methods("GET").Path("/say-hello").Handler(kithttp.NewServer(
-		endpoints.SayHelloEndpoint, decodeSayHelloRequest))
+		endpoints.SayHelloEndpoint, decodeSayHelloRequest, encodeJsonResponse, options...))
 
-	return nil
+	r.Methods("GET").Path("/discovery").Handler(kithttp.NewServer(
+		endpoints.DiscoveryEndpoint, decodeDiscoveryRequest, encodeJsonResponse, options...))
+
+	r.Methods("GET").Path("/health").Handler(kithttp.NewServer(
+		endpoints.HealthCheckEndpoint, decodeHealthCheckRequest, encodeJsonResponse, options...))
+
+	return r
 }
 
 // 编码请求参数为 SayHelloRequest
 func decodeSayHelloRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return endpts.DiscoveryRequest{}, nil
+}
 
+// 服务发现编码请求
+func decodeDiscoveryRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	serviceName := r.URL.Query().Get("serviceName")
+	if serviceName == "" {
+		return nil, ErrorBadRequest
+	}
+	return endpts.DiscoveryRequest{ServiceName: serviceName}, nil
+}
+
+// 健康检查的编码请求
+func decodeHealthCheckRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return endpts.HealthRequest{}, nil
 }
 
 // 解码 response 结构体为http JSON 响应
