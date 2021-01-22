@@ -23,10 +23,10 @@ type InstanceInfo struct {
 
 type Check struct {
 	DeregisterCriticalServiceAfter string   `json:"deregister_critical_service_after"` // 多久之前注销服务
-	Args                           []string `json:"args"`                              // 请求参数
+	Args                           []string `json:"args,omitempty"`                    // 请求参数
 	HTTP                           string   `json:"http"`                              // 健康检查地址
-	Interval                       string   `json:"interval"`                          // Consul主动进行健康检查
-	TTL                            string   `json:"ttl"`                               // 服务实例主动提交健康检查
+	Interval                       string   `json:"interval,omitempty"`                // Consul主动进行健康检查
+	TTL                            string   `json:"ttl,omitempty"`                     // 服务实例主动提交健康检查
 }
 
 type Weights struct {
@@ -75,6 +75,9 @@ func (consulClient *MyDiscoverClient) Register(serviceName, instanceId, healthCh
 		return false
 	}
 	resp.Body.Close()
+
+	log.Println(string(byteData))
+
 	if resp.StatusCode != 200 {
 		log.Println("Register service error")
 		return false
@@ -86,11 +89,58 @@ func (consulClient *MyDiscoverClient) Register(serviceName, instanceId, healthCh
 }
 
 func (consulClient *MyDiscoverClient) DeRegister(instanceId string, logger *log.Logger) bool {
-	panic("implement me")
+	// 发送注销请求
+	req, err := http.NewRequest("PUT", "http://"+consulClient.Host+":"+strconv.Itoa(consulClient.Port)+"/v1/agent/service/deregister/"+instanceId, nil)
+	if err != nil {
+		logger.Println("DeRegister service err", err)
+		return false
+	}
+	// 起一个http链接
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		logger.Println("DeRegister service err", err)
+		return false
+	}
+	resp.Body.Close()
+	if resp.StatusCode != 200 {
+		logger.Println("DeRegister service err", err)
+		return false
+	}
+	logger.Println("DeRegister service Success")
+	return true
 }
 
 func (consulClient *MyDiscoverClient) DiscoveryServices(serviceName string, logger *log.Logger) []interface{} {
-	panic("implement me")
+	// 从Consul中获取服务实例列表
+	req, err := http.NewRequest("GET", "http://"+consulClient.Host+":"+strconv.Itoa(consulClient.Port)+"/v1/health/service/"+serviceName, nil)
+	if err != nil {
+		logger.Println("DiscoveryServices req err", err)
+		return nil
+	}
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil || resp.StatusCode != 200 {
+		logger.Println("Discovery Services error !", err)
+		return nil
+	}
+
+	var serviceList []struct {
+		Service InstanceInfo `json:"service"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&serviceList)
+	resp.Body.Close()
+
+	if err != nil {
+		logger.Println("Discovery Services error !", err)
+		return nil
+	}
+
+	instances := make([]interface{}, len(serviceList))
+	for i := 0; i < len(serviceList); i++ {
+		instances[i] = serviceList[i].Service
+	}
+	return instances
 }
 
 func NewMyDiscoverClient(consulHost string, consulPort int) DiscoveryClient {

@@ -38,7 +38,12 @@ func main() {
 
 	// 声明服务发现客户端
 	var discoveryClient discover.DiscoveryClient
-	// TODO 未初始化服务发现客户端
+	discoveryClient = discover.NewMyDiscoverClient(*consulHost, *consulPort)
+
+	//if err != nil {
+	//	config.Logger.Println("Get Consul Client failed")
+	//	os.Exit(-1)
+	//}
 
 	// 声明并初始化 Service
 	var svc = service.NewDiscoveryServiceImpl(discoveryClient)
@@ -65,7 +70,7 @@ func main() {
 		config.Logger.Println("Http Server start at port:" + strconv.Itoa(*servicePort))
 		// 启动前执行注册
 		if !discoveryClient.Register(*serviceName, instanceId, "/health", *serviceHost, *servicePort, nil, config.Logger) {
-			config.Logger.Printf("string-service for service %s failed.", serviceName)
+			config.Logger.Printf("string-service for service %s failed.", *serviceName)
 			// 注册失败, 服务启动失败
 			os.Exit(-1)
 		}
