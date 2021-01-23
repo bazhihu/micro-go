@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"gitee.com/ikongjix/go_common/tools/uuid"
+	"micro-go/config"
 	"micro-go/discover"
 	"micro-go/endpoint"
 	"micro-go/service"
@@ -14,7 +14,8 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
-	"《Go语言高并发与微服务实战》代码下载包/ch6-discovery/config"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func main() {
