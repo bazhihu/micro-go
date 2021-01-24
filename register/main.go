@@ -1,14 +1,14 @@
-package main
+package register
 
 import (
 	"context"
 	"flag"
 	"fmt"
-	"micro-go/config"
-	"micro-go/discover"
-	"micro-go/endpoint"
-	"micro-go/service"
-	"micro-go/transport"
+	config2 "micro-go/register/config"
+	discover2 "micro-go/register/discover"
+	endpoint2 "micro-go/register/endpoint"
+	service2 "micro-go/register/service"
+	"micro-go/register/transport"
 	"net/http"
 	"os"
 	"os/signal"
@@ -38,8 +38,8 @@ func main() {
 	errChan := make(chan error)
 
 	// 声明服务发现客户端
-	var discoveryClient discover.DiscoveryClient
-	discoveryClient = discover.NewMyDiscoverClient(*consulHost, *consulPort)
+	var discoveryClient discover2.DiscoveryClient
+	discoveryClient = discover2.NewMyDiscoverClient(*consulHost, *consulPort)
 
 	//if err != nil {
 	//	config.Logger.Println("Get Consul Client failed")
@@ -47,31 +47,31 @@ func main() {
 	//}
 
 	// 声明并初始化 Service
-	var svc = service.NewDiscoveryServiceImpl(discoveryClient)
+	var svc = service2.NewDiscoveryServiceImpl(discoveryClient)
 	// 创建打招呼的Endpoint
-	sayHelloEndpoint := endpoint.MakeSayHelloEndpoint(svc)
+	sayHelloEndpoint := endpoint2.MakeSayHelloEndpoint(svc)
 	// 创建服务发现的Endpoint
-	discoverEndpoint := endpoint.MakeDiscoveryEndpoint(svc)
+	discoverEndpoint := endpoint2.MakeDiscoveryEndpoint(svc)
 	// 创建健康检查的Endpoint
-	healthEndpoint := endpoint.MakeHealthCheckEndpoint(svc)
+	healthEndpoint := endpoint2.MakeHealthCheckEndpoint(svc)
 
-	endpts := endpoint.DiscoveryEndpoints{
+	endpts := endpoint2.DiscoveryEndpoints{
 		SayHelloEndpoint:    sayHelloEndpoint,
 		DiscoveryEndpoint:   discoverEndpoint,
 		HealthCheckEndpoint: healthEndpoint,
 	}
 
 	// 创建http.Handler
-	r := transport.MakeHttpHandler(ctx, endpts, config.KitLogger)
+	r := transport.MakeHttpHandler(ctx, endpts, config2.KitLogger)
 
 	// 定义服务实例ID
 	instanceId := *serviceName + "-" + uuid.NewV4().String()
 	// 启动 http server
 	go func() {
-		config.Logger.Println("Http Server start at port:" + strconv.Itoa(*servicePort))
+		config2.Logger.Println("Http Server start at port:" + strconv.Itoa(*servicePort))
 		// 启动前执行注册
-		if !discoveryClient.Register(*serviceName, instanceId, "/health", *serviceHost, *servicePort, nil, config.Logger) {
-			config.Logger.Printf("string-service for service %s failed.", *serviceName)
+		if !discoveryClient.Register(*serviceName, instanceId, "/health", *serviceHost, *servicePort, nil, config2.Logger) {
+			config2.Logger.Printf("string-service for service %s failed.", *serviceName)
 			// 注册失败, 服务启动失败
 			os.Exit(-1)
 		}
@@ -88,6 +88,6 @@ func main() {
 
 	error := <-errChan
 	// 服务退出取消注册
-	discoveryClient.DeRegister(instanceId, config.Logger)
-	config.Logger.Println(error)
+	discoveryClient.DeRegister(instanceId, config2.Logger)
+	config2.Logger.Println(error)
 }

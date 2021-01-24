@@ -7,7 +7,7 @@ package endpoint
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"micro-go/service"
+	"micro-go/register/service"
 )
 
 type DiscoveryEndpoints struct {

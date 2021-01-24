@@ -8,7 +8,7 @@ import (
 	"github.com/go-kit/kit/transport"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	endpts "micro-go/endpoint"
+	"micro-go/register/endpoint"
 	"net/http"
 )
 
@@ -20,7 +20,7 @@ var (
 	ErrorBadRequest = errors.New("invalid request parameter")
 )
 
-func MakeHttpHandler(ctx context.Context, endpoints endpts.DiscoveryEndpoints, logger log.Logger) http.Handler {
+func MakeHttpHandler(ctx context.Context, endpoints endpoint.DiscoveryEndpoints, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 
 	// 定义处理处理器
@@ -43,7 +43,7 @@ func MakeHttpHandler(ctx context.Context, endpoints endpts.DiscoveryEndpoints, l
 
 // 编码请求参数为 SayHelloRequest
 func decodeSayHelloRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	return endpts.DiscoveryRequest{}, nil
+	return endpoint.DiscoveryRequest{}, nil
 }
 
 // 服务发现编码请求
@@ -52,12 +52,12 @@ func decodeDiscoveryRequest(_ context.Context, r *http.Request) (interface{}, er
 	if serviceName == "" {
 		return nil, ErrorBadRequest
 	}
-	return endpts.DiscoveryRequest{ServiceName: serviceName}, nil
+	return endpoint.DiscoveryRequest{ServiceName: serviceName}, nil
 }
 
 // 健康检查的编码请求
 func decodeHealthCheckRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	return endpts.HealthRequest{}, nil
+	return endpoint.HealthRequest{}, nil
 }
 
 // 解码 response 结构体为http JSON 响应

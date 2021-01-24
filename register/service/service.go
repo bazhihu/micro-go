@@ -7,7 +7,7 @@ package service
 import (
 	"context"
 	"errors"
-	"micro-go/discover"
+	discover2 "micro-go/register/discover"
 )
 
 type Service interface {
@@ -22,10 +22,10 @@ type Service interface {
 var ErrNotServiceInstances = errors.New("instances are not existed")
 
 type DiscoveryServiceImpl struct {
-	discoveryClient discover.DiscoveryClient
+	discoveryClient discover2.DiscoveryClient
 }
 
-func NewDiscoveryServiceImpl(discoveryClient discover.DiscoveryClient) Service {
+func NewDiscoveryServiceImpl(discoveryClient discover2.DiscoveryClient) Service {
 	return &DiscoveryServiceImpl{discoveryClient: discoveryClient}
 }
 
