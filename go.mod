@@ -9,5 +9,6 @@ require (
 	github.com/hashicorp/consul/api v1.3.0
 	github.com/prometheus/client_golang v1.9.0
 	github.com/satori/go.uuid v1.2.0
+	google.golang.org/grpc v1.35.0
 	google.golang.org/protobuf v1.25.0
 )
