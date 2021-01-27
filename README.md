@@ -36,10 +36,21 @@
 
 ### 目录结构
 ####transport层: 项目提供服务的方式（HTTP服务）
+    主要负责网络传输，例如处理HTTP、gRPC、Thrift 相关逻辑
 ####endpoint层: 用于接受请求并返回响应
+    主要负责request/response格式的转换，以及公用拦截器相关的逻辑
+    并且提供对日志、限流、熔断、链路追踪和服务监控等扩展能力
 ####service层: 业务代码实现层
-
-
+    主要负责于业务逻辑
+```
+Go-kit提供一下功能
+- 熔断器 Circuit breaker
+- 限流器 Rate limiter
+- 日志 Logging
+- Prometheus 统计 Metrics
+- 请求跟踪 Request tracing
+- 服务发现和负载均衡 
+```
 
 
 ## 综合实战 -- 秒杀系统
