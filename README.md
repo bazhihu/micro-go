@@ -21,6 +21,10 @@
 
 + 分布式配置中心
 
+```cassandraql
+    spring cloud config
+    etcd
+```  
 
 + 微服务网关
 

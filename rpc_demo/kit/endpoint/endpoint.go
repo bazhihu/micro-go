@@ -86,3 +86,17 @@ func EncodeStringResponse(ctx context.Context, r interface{}) (interface{}, erro
 		Err: "",
 	}, nil
 }
+
+type HealthRequest struct {
+}
+
+type HealthResponse struct {
+	Status bool `json:"status"`
+}
+
+func MakeHealthCheckEndpoint(svc service.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		status := true
+		return HealthResponse{Status: status}, nil
+	}
+}
