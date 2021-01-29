@@ -3,6 +3,7 @@ module micro-go
 go 1.13
 
 require (
+	github.com/bketelsen/crypt v0.0.3 // indirect
 	github.com/go-kit/kit v0.10.0
 	github.com/golang/protobuf v1.4.3
 	github.com/gorilla/mux v1.8.0
