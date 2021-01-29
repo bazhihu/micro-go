@@ -1,0 +1,11 @@
+ResumeInformation:
+  Name: "herman"
+  Sex:  "male"
+  Age:  20
+  Habits:
+    - "Basketball"
+    - "Running"
+    - "do"
+    - "eating"
+  RegisterTime: "2021-01-29"
+  Address:  "Shanghai"
