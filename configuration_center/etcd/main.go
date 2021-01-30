@@ -10,7 +10,7 @@ import (
 
 func main() {
 	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   []string{"127.0.0.1:2379"},
+		Endpoints:   []string{"localhost:2379"},
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
@@ -22,23 +22,91 @@ func main() {
 	defer cli.Close()
 
 	//put
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	_, err = cli.Put(ctx, "ddd", `{"ddd":1}`)
-	cancel()
-	if err != nil {
-		log.Printf("put to etcd failed, err:%v\n", err)
-		return
-	}
+	_ = PutValue("/ddd", `{"ddd":1}`)
 
 	// get
-	ctx, cancel = context.WithTimeout(ctx, time.Second)
-	resp, err := cli.Get(ctx, "ddd")
+	val := GetValue("/ddd")
+	log.Printf("value: %v\n", val)
+
+	// watch this key
+	c := make(chan []byte, 1)
+	go Watch("/ddd", c)
+
+	go func() {
+		for {
+			log.Println(string(<-c))
+		}
+	}()
+
+	_ = PutValue("/ddd", `{"ddd":2}`)
+
+	// lease租约
+	// 创建一个5秒租约
+	resp, err := EtcdClient.Grant(context.TODO(), 5)
+	if err != nil {
+		log.Fatal("Grant-err:", err)
+	}
+
+	// 5秒之后，key就会被移除
+	_, err = EtcdClient.Put(context.TODO(), "/lmh/", "lmh", clientv3.WithLease(resp.ID))
+	if err != nil {
+		log.Fatalf("put-grant-err:", err)
+	}
+
+	//log.Fatal("time:", string(GetValue("/lmh/")))
+
+	time.Sleep(6 * time.Second)
+	log.Fatal("6 second:", string(GetValue("/lmh/")))
+}
+
+var EtcdClient *clientv3.Client
+
+func init() {
+	var err error
+	EtcdClient, err = clientv3.New(clientv3.Config{
+		Endpoints:   []string{"127.0.0.1:2379"},
+		DialTimeout: 5 * time.Second,
+	})
+	if err != nil {
+		log.Fatalf("connect to etcd failed, err: %v\n", err)
+		panic(err)
+	}
+}
+
+// 设置键值
+func PutValue(key, value string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
+	_, err := EtcdClient.Put(ctx, key, value)
 	cancel()
 	if err != nil {
-		log.Printf("get from etcd failed, err:%v\n", err)
+		log.Fatalf("etcd put err:%v\n", err)
+	}
+	return err
+}
+
+// 获取键值
+func GetValue(key string) (value []byte) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(5)*time.Second)
+	resp, err := EtcdClient.Get(ctx, key)
+	cancel()
+	if err != nil {
+		log.Fatalf("etcd get err:%v\n", err)
 		return
 	}
 	for _, ev := range resp.Kvs {
-		log.Printf("%s:%s\n", ev.Key, ev.Value)
+		value = ev.Value
+		break
+	}
+	return
+}
+
+// watch 键值 通过c 传递
+func Watch(key string, c chan<- []byte) {
+	watch := EtcdClient.Watch(context.Background(), key)
+	for wresp := range watch {
+		for _, v := range wresp.Events {
+			c <- v.Kv.Value
+			log.Printf("watch key:%s change value %v", key, string(v.Kv.Value))
+		}
 	}
 }
