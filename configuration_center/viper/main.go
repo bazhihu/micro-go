@@ -13,8 +13,9 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"reflect"
-	_ "github.com/spf13/viper/remote"
 	"sync"
+
+	_ "github.com/spf13/viper/remote"
 	"time"
 )
 
@@ -99,9 +100,8 @@ func watchConfig() {
 	})
 }
 
-
 // 从IO.Reader读取配置文件
-func IOReader()  {
+func IOReader() {
 	viper.SetConfigType("yaml")
 	var yamlExample = []byte(`
 Hacker: true
@@ -123,7 +123,7 @@ beard: true
 }
 
 // 接收参数
-func flagsTest()  {
+func flagsTest() {
 	// Flags
 	pflag.Int("flagname", 1234, "do")
 
@@ -135,7 +135,7 @@ func flagsTest()  {
 }
 
 // 利用Viper读取本地配置信息
-func readLocal()  {
+func readLocal() {
 	parseYaml(viper.GetViper())
 	fmt.Println(Contains("Basketball", Resume.Habits))
 	for {
@@ -146,23 +146,23 @@ func readLocal()  {
 }
 
 // 设置新变量
-func setOneTest()  {
+func setOneTest() {
 	viper.Set("verbose", true)
 	log.Println(viper.GetBool("verbose"))
 }
 
 type RuntimeConf struct {
-	Master struct{
-		Db_dsn string `json:"db_dsn"`
-		Max_open int `json:"max_open"`
-		Max_idle int `json:"max_idle"`
-		Db_name string `json:"db_name"`
+	Master struct {
+		Db_dsn   string `json:"db_dsn"`
+		Max_open int    `json:"max_open"`
+		Max_idle int    `json:"max_idle"`
+		Db_name  string `json:"db_name"`
 	} `json:"master"`
-	Slave struct{
-		Db_dsn string `json:"db_dsn"`
-		Max_open int `json:"max_open"`
-		Max_idle int `json:"max_idle"`
-		Db_name string `json:"db_name"`
+	Slave struct {
+		Db_dsn   string `json:"db_dsn"`
+		Max_open int    `json:"max_open"`
+		Max_idle int    `json:"max_idle"`
+		Db_name  string `json:"db_name"`
 	} `json:"slave"`
 }
 
@@ -171,20 +171,18 @@ func main() {
 	// 创建一个新的viper实例
 	var (
 		runtime_viper = viper.New()
-		conf RuntimeConf
-		wc sync.WaitGroup
+		conf          RuntimeConf
+		wc            sync.WaitGroup
 	)
 
-	runtime_viper.AddRemoteProvider("etcd", "http://127.0.0.1:4001", "/config/mysql/go_base_center")
-	runtime_viper.SetConfigType("yaml")
+	runtime_viper.AddRemoteProvider("etcd", "http://127.0.0.1:2379", "/config/mysql/go_base_center")
+	runtime_viper.SetConfigType("json")
 	//viper.AddRemoteProvider("etcd", "http")
 
 	// 第一次从远程读取配置
 	if err := runtime_viper.ReadRemoteConfig(); err != nil {
 		log.Println("ReadRemoteConfig-err", err)
 	}
-
-
 
 	// 反序列化
 	runtime_viper.Unmarshal(&conf)
@@ -207,4 +205,6 @@ func main() {
 	}()
 	wc.Wait()
 	parseYaml(viper.GetViper())
+
+	log.Println("asdasdasda")
 }
