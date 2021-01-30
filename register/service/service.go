@@ -7,7 +7,7 @@ package service
 import (
 	"context"
 	"errors"
-	discover2 "micro-go/register/discover"
+	discover2 "micro-go/common/discover"
 )
 
 type Service interface {
