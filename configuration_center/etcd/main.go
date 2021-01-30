@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	"go.etcd.io/etcd/clientv3"
-	con "go.etcd.io/etcd/clientv3/concurrency"
+	"github.com/coreos/etcd/clientv3"
+	con "github.com/coreos/etcd/clientv3/concurrency"
 	"log"
 	"time"
 )
@@ -47,8 +47,31 @@ func main() {
 	// keepalive
 	//KeepAlive("/lll/", "lll", 10)
 
-	// 分布式锁
+	// 分布式锁1
 	s1, err := con.NewSession(EtcdClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer s1.Close()
+
+	m1 := con.NewMutex(s1, "/lock_demo/")
+
+	// 分布式锁2
+	s2, err := con.NewSession(EtcdClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer s2.Close()
+	m2 := con.NewMutex(s2, "/lock_demo/")
+
+	// 会话S1 枷锁
+	if err := m1.Lock(context.TODO()); err != nil {
+		log.Fatal("lock one err:", err)
+	}
+
+	if err := m2.Lock(context.TODO()); err != nil {
+		log.Fatal("lock two err:", err)
+	}
 }
 
 var EtcdClient *clientv3.Client
