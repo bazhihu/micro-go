@@ -47,31 +47,23 @@ func main() {
 	// keepalive
 	//KeepAlive("/lll/", "lll", 10)
 
-	// 分布式锁1
-	s1, err := con.NewSession(EtcdClient)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer s1.Close()
+	var em1 EtcdMutex // 分布式锁1
+	var em2 EtcdMutex // 分布式锁2
 
-	m1 := con.NewMutex(s1, "/lock_demo/")
+	// 枷锁1
+	em1.Lock("/lock_demo_1/")
+	log.Println("lock one key /lock_demo_1/")
+	go func() { // 10秒后释放锁
+		defer em1.UnLock()
+		time.Sleep(10 * time.Second)
+	}()
 
-	// 分布式锁2
-	s2, err := con.NewSession(EtcdClient)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer s2.Close()
-	m2 := con.NewMutex(s2, "/lock_demo/")
-
-	// 会话S1 枷锁
-	if err := m1.Lock(context.TODO()); err != nil {
-		log.Fatal("lock one err:", err)
-	}
-
-	if err := m2.Lock(context.TODO()); err != nil {
+	if err := em2.Lock("/lock_demo_1/"); err != nil {
 		log.Fatal("lock two err:", err)
 	}
+	defer em2.UnLock()
+
+	log.Println("lock two key /lock_demo_1/")
 }
 
 var EtcdClient *clientv3.Client
@@ -167,4 +159,39 @@ func KeepAlive(key, value string, ttl int64) {
 		ka := <-ch
 		log.Printf("ttl: %d\n", ka.TTL)
 	}
+}
+
+type EtcdMutex struct {
+	session *con.Session
+	mutex   *con.Mutex
+}
+
+// 分布式枷锁
+func (em *EtcdMutex) Lock(key string) error {
+	var (
+		err error
+	)
+
+	if em.session, err = con.NewSession(EtcdClient); err != nil {
+		log.Printf("Create NewSession err %v\n", err)
+	}
+
+	em.mutex = con.NewMutex(em.session, key)
+	if err = em.mutex.Lock(context.TODO()); err != nil {
+		log.Fatalf("lock fatal %v\n", err)
+	}
+
+	return err
+}
+
+// 分布式解锁
+func (em *EtcdMutex) UnLock() error {
+	defer em.session.Close()
+	var (
+		err error
+	)
+	if err = em.mutex.Unlock(context.TODO()); err != nil {
+		log.Fatalf("unlock fatal %v\n", err)
+	}
+	return err
 }
