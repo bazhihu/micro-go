@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.etcd.io/etcd/clientv3"
+	con "go.etcd.io/etcd/clientv3/concurrency"
 	"log"
 	"time"
 )
@@ -41,22 +42,13 @@ func main() {
 	_ = PutValue("/ddd", `{"ddd":2}`)
 
 	// lease租约
-	// 创建一个5秒租约
-	resp, err := EtcdClient.Grant(context.TODO(), 5)
-	if err != nil {
-		log.Fatal("Grant-err:", err)
-	}
+	//Grant("/lmh/", "lmh", 5)
 
-	// 5秒之后，key就会被移除
-	_, err = EtcdClient.Put(context.TODO(), "/lmh/", "lmh", clientv3.WithLease(resp.ID))
-	if err != nil {
-		log.Fatalf("put-grant-err:", err)
-	}
+	// keepalive
+	//KeepAlive("/lll/", "lll", 10)
 
-	//log.Fatal("time:", string(GetValue("/lmh/")))
-
-	time.Sleep(6 * time.Second)
-	log.Fatal("6 second:", string(GetValue("/lmh/")))
+	// 分布式锁
+	s1, err := con.NewSession(EtcdClient)
 }
 
 var EtcdClient *clientv3.Client
@@ -108,5 +100,48 @@ func Watch(key string, c chan<- []byte) {
 			c <- v.Kv.Value
 			log.Printf("watch key:%s change value %v", key, string(v.Kv.Value))
 		}
+	}
+}
+
+// 创建租约
+func Grant(key, value string, ttl int64) {
+	resp, err := EtcdClient.Grant(context.TODO(), ttl)
+	if err != nil {
+		log.Fatalf("etcd grant err: %v\n", err)
+	}
+	_, err = EtcdClient.Put(context.TODO(), key, value, clientv3.WithLease(resp.ID))
+	if err != nil {
+		log.Fatalf("etcd grant put err: %v\n", err)
+	}
+
+	// 如果读取了 租约就消失了
+	//GetValue(key)
+}
+
+// 长链接
+func KeepAlive(key, value string, ttl int64) {
+	resp, err := EtcdClient.Grant(context.TODO(), ttl)
+	if err != nil {
+		log.Fatalf("etcd grant err: %v\n", err)
+	}
+	_, err = EtcdClient.Put(context.TODO(), key, value, clientv3.WithLease(resp.ID))
+	if err != nil {
+		log.Fatalf("etcd grant put err: %v\n", err)
+	}
+
+	// the key will by kept forever
+	ch, kaerr := EtcdClient.KeepAlive(context.TODO(), resp.ID)
+	if kaerr != nil {
+		log.Fatalf("etcd grant KeepAlive err: %v\n", kaerr)
+	}
+
+	var i int
+	for {
+		i++
+		if i > 10 {
+			break
+		}
+		ka := <-ch
+		log.Printf("ttl: %d\n", ka.TTL)
 	}
 }
