@@ -12,8 +12,9 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"log"
+	"net/http"
 	"reflect"
-	"sync"
+	//"sync"
 
 	_ "github.com/spf13/viper/remote"
 	"time"
@@ -172,10 +173,10 @@ func main() {
 	var (
 		runtime_viper = viper.New()
 		conf          RuntimeConf
-		wc            sync.WaitGroup
+		//wc            sync.WaitGroup
 	)
 
-	runtime_viper.AddRemoteProvider("etcd", "http://127.0.0.1:2379", "/config/mysql/go_base_center")
+	runtime_viper.AddRemoteProvider("etcd", "http://127.0.0.1:4001", "/config/mysql/go_base_center")
 	runtime_viper.SetConfigType("json")
 	//viper.AddRemoteProvider("etcd", "http")
 
@@ -187,24 +188,29 @@ func main() {
 	// 反序列化
 	runtime_viper.Unmarshal(&conf)
 
-	wc.Add(1)
-	// 开启单独的goroutine 一直监控远端的变更
-	go func() {
-		defer wc.Done()
-		for {
-			time.Sleep(time.Second * 5) // 每次请求后延迟一下
+	runtime_viper.WatchRemoteConfigOnChannel()
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		log.Println(writer, request.Body)
+	})
 
-			if err := runtime_viper.WatchRemoteConfig(); err != nil {
-				log.Fatalf("unable to read remote config: %v", err)
-				continue
-			}
+	//wc.Add(1)
+	//// 开启单独的goroutine 一直监控远端的变更
+	//go func() {
+	//	defer wc.Done()
+	//	for {
+	//		time.Sleep(time.Second * 5) // 每次请求后延迟一下
+	//
+	//		if err := runtime_viper.WatchRemoteConfig(); err != nil {
+	//			log.Fatalf("unable to read remote config: %v", err)
+	//			continue
+	//		}
+	//
+	//		// 将新配置反序列化到我们运行时的配置结构体中
+	//		runtime_viper.Unmarshal(&conf)
+	//	}
+	//}()
+	//wc.Wait()
+	//parseYaml(viper.GetViper())
 
-			// 将新配置反序列化到我们运行时的配置结构体中
-			runtime_viper.Unmarshal(&conf)
-		}
-	}()
-	wc.Wait()
-	parseYaml(viper.GetViper())
-
-	log.Println("asdasdasda")
+	//log.Println("asdasdasda")
 }
