@@ -24,6 +24,7 @@
 ```cassandraql
     spring cloud config
     etcd
+    分布式锁
 ```  
 
 + 微服务网关
