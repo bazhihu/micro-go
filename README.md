@@ -20,19 +20,18 @@
 
 
 + 分布式配置中心
-
-```cassandraql
-    spring cloud config
-    etcd
-    分布式锁
-```  
-
+    * spring cloud config
+    * etcd
+    * 分布式锁 
+    
 + 微服务网关
-```cassandraql
-1、nginx 设置反向代理转发到另外的服务
-2、拥有网关服务 服务接收请求根据服务发现自动转发到正确服务
-```
+    * Nginx
+        * nginx 设置反向代理转发到另外的服务
+        * 拥有网关服务 服务接收请求根据服务发现自动转发到正确服务
+    * Zuul  
+    * Kong
 
+  
 + 微服务的容错处理与负载均衡
 
 
