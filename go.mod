@@ -18,7 +18,8 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gohouse/gorose/v2 v2.1.2 // indirect
 	github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9 // indirect
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.3.2
+	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/handlers v1.4.2 // indirect
 	github.com/gorilla/mux v1.6.2
@@ -60,9 +61,7 @@ require (
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
-	google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506 // indirect
 	google.golang.org/grpc v1.35.0
-	google.golang.org/protobuf v1.25.0
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
