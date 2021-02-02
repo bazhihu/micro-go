@@ -34,7 +34,7 @@ func MakeHttpHandler(ctx context.Context, endpoints endpoint.UseStringEndpoints,
 
 	// create health check handler
 	r.Methods("GET").Path("/health").Handler(kithttp.NewServer(
-		endpoints.HealthCheckEndpoint, decodeHealthCheckRequest, encodeStringResponse, option...))
+		endpoints.HealthCheckEndpoint, decodeHealthCheckRequest, encodeStringResponse, options...))
 
 	// 添加hytrix 监控数据
 	hystrixStreamHandler := hystrix.NewStreamHandler()
@@ -45,7 +45,7 @@ func MakeHttpHandler(ctx context.Context, endpoints endpoint.UseStringEndpoints,
 }
 
 func decodeHealthCheckRequest(i context.Context, request2 *http.Request) (request interface{}, err error) {
-
+	return endpoint.HealthRequest{}, nil
 }
 
 func decodeStringRequest(i context.Context, r *http.Request) (request interface{}, err error) {
@@ -57,12 +57,23 @@ func decodeStringRequest(i context.Context, r *http.Request) (request interface{
 
 	pa, ok := vars["a"]
 	if !ok {
-
+		return nil, ErrorBadRequest
 	}
+
+	pb, ok := vars["b"]
+	if !ok {
+		return nil, ErrorBadRequest
+	}
+	return endpoint.UseStringRequest{
+		RequestType: requestType,
+		A:           pa,
+		B:           pb,
+	}, nil
 }
 
-func encodeStringResponse(i context.Context, writer http.ResponseWriter, i2 interface{}) error {
-
+func encodeStringResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", "application/json;charset=utf-8")
+	return json.NewEncoder(w).Encode(response)
 }
 
 func encodeError(ctx context.Context, err error, w http.ResponseWriter) {
