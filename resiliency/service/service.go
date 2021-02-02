@@ -33,7 +33,7 @@ func NewUseStringService(client discover.DiscoveryClient, lb loadbalance.LoadBal
 		RequestVolumeThreshold: 5,
 	})
 	return &UseStringService{
-		discoveryClient: nil,
-		loadbalance:     nil,
+		discoveryClient: client,
+		loadbalance:     lb,
 	}
 }
