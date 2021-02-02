@@ -36,6 +36,7 @@
     * 服务熔断 
     * 负载均衡
 ```markdown
+    简单的方式
     分别启动调用方use-string-service和被调用方string-service
     curl -X POST http://127.0.0.1:10086/op/Concat/qw/er
     关闭string-service 在发起请求响应{"error":"hystrix: circuit open"}
