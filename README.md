@@ -33,7 +33,13 @@
 
   
 + 微服务的容错处理与负载均衡
-
+    * 服务熔断 
+    * 负载均衡
+```markdown
+    分别启动调用方use-string-service和被调用方string-service
+    curl -X POST http://127.0.0.1:10086/op/Concat/qw/er
+    关闭string-service 在发起请求响应{"error":"hystrix: circuit open"}
+```
 
 + 统一认证与授权
 
