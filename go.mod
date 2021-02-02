@@ -34,10 +34,12 @@ require (
 	github.com/prometheus/common v0.7.0 // indirect
 	github.com/prometheus/procfs v0.0.5 // indirect
 	github.com/satori/go.uuid v1.2.0
+	github.com/sony/gobreaker v0.4.1 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.4.0
+	github.com/streadway/handy v0.0.0-20200128134331-0f66f006fb2e // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0 // indirect
