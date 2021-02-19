@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"micro-go/security/model"
 	"net/http"
 )
@@ -13,7 +14,10 @@ import (
 */
 
 // 错误信息
-var ()
+var (
+	ErrNotSupportGrantType               = errors.New("grant type is not supported")
+	ErrInvalidUsernameAndPasswordRequest = errors.New("invalid username, password")
+)
 
 // 令牌授予
 type TokenGranter interface {
@@ -25,8 +29,14 @@ type ComposeTokenGranter struct {
 	TokenGrantDict map[string]TokenGranter
 }
 
-func (c ComposeTokenGranter) Grant(ctx context.Context, grantType string, client *model.ClientDetails, reader *http.Request) (*model.OAuth2Token, error) {
-	panic("implement me")
+func (tokenGranter *ComposeTokenGranter) Grant(ctx context.Context, grantType string, client *model.ClientDetails, reader *http.Request) (*model.OAuth2Token, error) {
+	dispatchGranter := tokenGranter.TokenGrantDict[grantType]
+
+	if dispatchGranter == nil {
+		return nil, ErrNotSupportGrantType
+	}
+
+	return dispatchGranter.Grant(ctx, grantType, client, reader)
 }
 
 func NewComposeTokenGranter(tokenGrantDict map[string]TokenGranter) TokenGranter {
@@ -38,6 +48,44 @@ type UsernamePasswordTokenGranter struct {
 	supportGrantType   string
 	userDetailsService UserDetailsService
 	tokenService       TokenService
+}
+
+func (tokenGranter *UsernamePasswordTokenGranter) Grant(ctx context.Context, grantType string, client *model.ClientDetails, reader *http.Request) (*model.OAuth2Token, error) {
+	if grantType != tokenGranter.supportGrantType {
+		return nil, ErrNotSupportGrantType
+	}
+
+	// 从请求体中获取用户名密码
+	username := reader.FormValue("username")
+	password := reader.FormValue("password")
+
+	if username == "" || password == "" {
+		return nil, ErrInvalidUsernameAndPasswordRequest
+	}
+
+	// 验证用户名密码是否正确
+	userDetails, err := tokenGranter.userDetailsService.GetUserDetailByUsername(ctx, username, password)
+	if err != nil {
+		return nil, ErrInvalidUsernameAndPasswordRequest
+	}
+
+	// 根据用户信息和客户端信息生成访问令牌
+	return tokenGranter.tokenService.CreateAccessToken(&model.OAuth2Details{
+		Client: client,
+		User:   userDetails,
+	})
+}
+
+func NewUsernamePasswordTokenGranter(grantType string, userDetailsService UserDetailsService, tokenService TokenService) TokenGranter {
+	return &UsernamePasswordTokenGranter{
+		supportGrantType:   grantType,
+		userDetailsService: userDetailsService,
+		tokenService:       tokenService,
+	}
+}
+
+// 刷新令牌器
+type RefreshTokenGranter struct {
 }
 
 type TokenService interface {
