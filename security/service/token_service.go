@@ -296,6 +296,10 @@ type JwtTokenStore struct {
 	jwtTokenEnhancer *JwtTokenEnhancer
 }
 
+func NewJwtTokenStore(enhancer *JwtTokenEnhancer) TokenStore {
+	return &JwtTokenStore{jwtTokenEnhancer: enhancer}
+}
+
 func (tokenStore *JwtTokenStore) StoreAccessToken(oauth2Token *model.OAuth2Token, oauth2Details *model.OAuth2Details) {
 
 }
@@ -360,6 +364,12 @@ type OAuth2TokenCustomClaims struct {
 
 type JwtTokenEnhancer struct {
 	secretKey []byte
+}
+
+func NewJwtTokenEnhancer(secretKey string) TokenEnhancer {
+	return &JwtTokenEnhancer{
+		secretKey: []byte(secretKey),
+	}
 }
 
 func (enhancer *JwtTokenEnhancer) Enhance(token *model.OAuth2Token, oauth2Details *model.OAuth2Details) (*model.OAuth2Token, error) {
