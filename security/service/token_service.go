@@ -27,7 +27,7 @@ var (
 	ErrNotSupportOperation               = errors.New("")
 )
 
-// 令牌授予
+// 令牌生成器
 type TokenGranter interface {
 	Grant(ctx context.Context, grantType string, client *model.ClientDetails, reader *http.Request) (*model.OAuth2Token, error)
 }
@@ -270,7 +270,7 @@ func NewTokenService(tokenStore TokenStore, tokenEnhancer TokenEnhancer) TokenSe
 
 // ----------------------------------
 
-// 令牌存储工具集合
+// 令牌存储器
 type TokenStore interface {
 	// 存储访问令牌
 	StoreAccessToken(oauth2Token *model.OAuth2Token, oauth2Details *model.OAuth2Details)

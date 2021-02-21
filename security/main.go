@@ -72,15 +72,34 @@ func main() {
 		"refresh_token": service.NewRefreshGranter("refresh_token", userDetailsService, tokenService),
 	})
 
+	// endpoint
+	tokenEndpoint := endpoint.MakeTokenEndpoint(tokenGranter, clientDetailsService)
+	tokenEndpoint = endpoint.MakeClientAuthorizationMiddleware(config.KitLogger)(tokenEndpoint)
+	checkTokenEndpoint := endpoint.MakeCheckTokenEndpoint(tokenService)
+	checkTokenEndpoint = endpoint.MakeClientAuthorizationMiddleware(config.KitLogger)(checkTokenEndpoint)
+
 	srv = service.NewCommonService()
 
-	// endpoint
+	simpleEndpoint := endpoint.MakeSimpleEndpoint(srv)
+	simpleEndpoint = endpoint.MakeOAuth2AuthorizationMiddleware(config.KitLogger)(simpleEndpoint)
+	adminEndpoint := endpoint.MakeAdminEndpoint(srv)
+	adminEndpoint = endpoint.MakeOAuth2AuthorizationMiddleware(config.KitLogger)(adminEndpoint)
+	adminEndpoint = endpoint.MakeAuthorityAuthorizationMiddleware("Admin", config.KitLogger)(adminEndpoint)
 
 	// 创建健康检查的Endpoint
 	healthEndpoint := endpoint.MakeHealthCheckEndpoint(srv)
 
+	endpts := endpoint.OAuth2Endpoints{
+		TokenEndpoint:       tokenEndpoint,
+		CheckTokenEndpoint:  checkTokenEndpoint,
+		HealthCheckEndpoint: healthEndpoint,
+		SimpleEndpoint:      simpleEndpoint,
+		AdminEndpoint:       adminEndpoint,
+	}
+
 	// 根据transport 创建http.Handler
-	//r := transport.MakeHttpHandler()
+	r := transport.MakeHttpHandler(ctx, endpts, tokenService, clientDetailsService, config.KitLogger)
+
 	instanceId := *serviceName + "-" + uuid.NewV4().String()
 
 	// http server
