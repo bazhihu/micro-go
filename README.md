@@ -47,6 +47,29 @@
 
 + 分布式链路追踪
 
+```
+    分布式追踪系统发展
+    1、代码埋点
+    2、数据存储
+    3、查询展示
+    
+    Zipkin
+    基本概念
+    1、Span (基本工作单元)
+        一次链路调用创建一个Span, 一个64位ID标识Span
+        ParentID 表示Span调用链路的来源
+    2、Trace （类似于树结构的Span集合）
+        一条完整的调用链路，存在唯一的标识TraceID
+    3、Annotation（注解）
+        CS:Client Sent ，表示客户端发起请求
+        SR:Server Receive ， 表示服务端受到请求
+        SS:Server Send ， 表示服务端完成处理，并将结果发送给客户端
+        CR:Client Received ， 表示客户端获取到服务端返回信息
+    
+    TraceID
+    SpanID
+    ParentID
+```
 
 ### 目录结构
 ####transport层: 项目提供服务的方式（HTTP服务）

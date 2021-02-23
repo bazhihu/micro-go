@@ -24,7 +24,7 @@ func main() {
 		serviceHost = flag.String("service.host", "127.0.0.1", "service host")
 
 		consulPort = flag.Int("consul.port", 8500, "consul port")
-		consulHost = flag.String("consul.port", "127.0.0.1", "consul host")
+		consulHost = flag.String("consul.host", "127.0.0.1", "consul host")
 
 		serviceName = flag.String("service.name", "oauth", "service name")
 	)
