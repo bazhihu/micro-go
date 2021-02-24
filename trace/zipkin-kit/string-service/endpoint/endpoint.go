@@ -12,15 +12,28 @@ type StringEndpoints struct {
 }
 
 func (s StringEndpoints) Concat(a, b string) (string, error) {
-	panic("implement me")
+	ctx := context.Background()
+	resp, err := s.StringEndpoint(ctx, StringRequest{
+		RequestType: "Concat",
+		A:           a,
+		B:           b,
+	})
+	response := resp.(StringResponse)
+	return response.Result, err
 }
 
 func (s StringEndpoints) Diff(ctx context.Context, a, b string) (string, error) {
-	panic("implement me")
+	resp, err := s.StringEndpoint(ctx, StringRequest{
+		RequestType: "Diff",
+		A:           a,
+		B:           b,
+	})
+	response := resp.(StringResponse)
+	return response.Result, err
 }
 
 func (s StringEndpoints) HealthCheck() bool {
-	panic("implement me")
+	return true
 }
 
 // StringRequest define request struct
