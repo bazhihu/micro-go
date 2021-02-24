@@ -49,7 +49,7 @@ func (s StringService) Concat(a, b string) (string, error) {
 	return a + b, nil
 }
 
-func (s StringService) Diff(_ context.Context, a, b string) (string, error) {
+func (s StringService) Diff(ctx context.Context, a, b string) (string, error) {
 	if len(a) < 1 || len(b) < 1 {
 		return "", nil
 	}

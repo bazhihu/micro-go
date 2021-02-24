@@ -1,8 +1,8 @@
 package endpoint
 
 import (
+	"context"
 	"github.com/go-kit/kit/endpoint"
-	"micro-go/trace/zipkin-kit/string-service/service"
 )
 
 // StringEndpoint define endpoint
@@ -11,11 +11,11 @@ type StringEndpoints struct {
 	HealthCheckEndpoint endpoint.Endpoint
 }
 
-func (s StringEndpoints) Concat(req service.StringRequest, ret *string) error {
+func (s StringEndpoints) Concat(a, b string) (string, error) {
 	panic("implement me")
 }
 
-func (s StringEndpoints) Diff(req service.StringRequest, ret *string) error {
+func (s StringEndpoints) Diff(ctx context.Context, a, b string) (string, error) {
 	panic("implement me")
 }
 
