@@ -36,7 +36,7 @@ func DecodeGRPCStringResponse(ctx context.Context, i interface{}) (response inte
 
 // 解密密GRPC请求
 func EncodeGRPCStringRequest(ctx context.Context, i interface{}) (request interface{}, err error) {
-	req := i.(*endpts.StringRequest)
+	req := i.(endpts.StringRequest)
 	return &pd.StringRequest{
 		RequestType: string(req.RequestType),
 		A:           string(req.A),

@@ -53,7 +53,6 @@ func (s StringService) Diff(ctx context.Context, a, b string) (string, error) {
 	if len(a) < 1 || len(b) < 1 {
 		return "", nil
 	}
-
 	var res, aa, bb string
 	if len(a) >= len(b) {
 		aa = a

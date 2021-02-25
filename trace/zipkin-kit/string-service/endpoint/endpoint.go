@@ -23,11 +23,13 @@ func (s StringEndpoints) Concat(a, b string) (string, error) {
 }
 
 func (s StringEndpoints) Diff(ctx context.Context, a, b string) (string, error) {
+
 	resp, err := s.StringEndpoint(ctx, StringRequest{
 		RequestType: "Diff",
 		A:           a,
 		B:           b,
 	})
+
 	response := resp.(StringResponse)
 	return response.Result, err
 }

@@ -68,7 +68,9 @@ func TestMain(m *testing.M) {
 	defer conn.Close()
 
 	svr := client.StringDiff(conn, clientTracer)
+
 	result, err := svr.Diff(ctx, "Add", "kkkjjkkk")
+
 	if err != nil {
 		fmt.Println("Diff error", err.Error())
 	}
