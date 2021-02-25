@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
+	"micro-go/trace/zipkin-kit/string-service/service"
 )
 
 // StringEndpoint define endpoint
@@ -43,8 +44,27 @@ type StringRequest struct {
 	B           string `json:"b"`
 }
 
+// make string endpoint
+func MakeStringEndpoint(ctx context.Context, svc service.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+
+	}
+}
+
 // StringResponse define response struct
 type StringResponse struct {
 	Result string `json:"result"`
 	Error  error  `json:"error"`
+}
+
+// HealthRequest 健康检查请求结构
+type HealthRequest struct{}
+
+// HealthResponse 健康检查响应结构
+type HealthResponse struct {
+	Status bool `json:"status"`
+}
+
+func MakeHealthEndpoint(ctx context.Context, svc service.Service) endpoint.Endpoint {
+
 }
