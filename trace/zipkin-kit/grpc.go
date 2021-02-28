@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-kit/kit/transport/grpc"
 	"micro-go/trace/zipkin-kit/client"
 	pd "micro-go/trace/zipkin-kit/pb"
@@ -13,6 +14,7 @@ type grpcServer struct {
 }
 
 func (s *grpcServer) Diff(ctx context.Context, r *pd.StringRequest) (*pd.StringResponse, error) {
+	fmt.Println(r)
 	_, resp, err := s.diff.ServeGRPC(ctx, r)
 
 	if err != nil {

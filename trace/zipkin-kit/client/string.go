@@ -12,7 +12,7 @@ import (
 
 func StringDiff(conn *grpc.ClientConn, clientTracer kitgrpc.ClientOption) service.Service {
 	var ep = kitgrpc.NewClient(conn,
-		"pb.StringService",
+		"pd.StringService",
 		"Diff",
 		EncodeGRPCStringRequest,
 		DecodeGRPCStringResponse,
@@ -29,7 +29,7 @@ func StringDiff(conn *grpc.ClientConn, clientTracer kitgrpc.ClientOption) servic
 func DecodeGRPCStringResponse(ctx context.Context, i interface{}) (response interface{}, err error) {
 	resp := i.(*pd.StringResponse)
 	return endpts.StringResponse{
-		Result: resp.Result,
+		Result: string(resp.Result),
 		Error:  errors.New(resp.Err),
 	}, nil
 }

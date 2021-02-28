@@ -11,12 +11,10 @@ import (
 	"google.golang.org/grpc"
 	"micro-go/trace/zipkin-kit/client"
 	"os"
-	"testing"
 	"time"
 )
 
-func TestMain(m *testing.M) {
-	//func main() {
+func main() {
 	var (
 		grpcAddr    = flag.String("addr", ":9008", "gRPC address")
 		serviceHost = flag.String("service.host", "127.0.0.1", "service ip address")

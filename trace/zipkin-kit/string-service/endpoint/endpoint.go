@@ -30,13 +30,11 @@ func (s StringEndpoints) Concat(a, b string) (string, error) {
 }
 
 func (s StringEndpoints) Diff(ctx context.Context, a, b string) (string, error) {
-
 	resp, err := s.StringEndpoint(ctx, StringRequest{
 		RequestType: "Diff",
 		A:           a,
 		B:           b,
 	})
-
 	response := resp.(StringResponse)
 	return response.Result, err
 }
@@ -66,6 +64,7 @@ func MakeStringEndpoint(ctx context.Context, svc service.Service) endpoint.Endpo
 		if strings.EqualFold(req.RequestType, "Concat") {
 			res, opError = svc.Concat(a, b)
 		} else if strings.EqualFold(req.RequestType, "Diff") {
+
 			res, opError = svc.Diff(ctx, a, b)
 		} else {
 			return nil, ErrInvalidRequestType
