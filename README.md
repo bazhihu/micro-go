@@ -69,6 +69,9 @@
     TraceID
     SpanID
     ParentID
+
+    追踪路径
+    client_test-> apigateway -> string-service
 ```
 
 ### 目录结构
