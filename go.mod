@@ -10,7 +10,7 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/garyburd/redigo v1.6.2 // indirect
+	github.com/garyburd/redigo v1.6.2
 	github.com/go-kit/kit v0.9.0
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9 // indirect

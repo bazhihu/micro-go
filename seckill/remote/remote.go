@@ -28,9 +28,17 @@ func NewPool() *redis.Pool {
 		MaxIdle:   10000,
 		MaxActive: 12000,
 		Dial: func() (conn redis.Conn, e error) {
-			conn, e = redis.Dial("tcp", ":6379")
+			conn, e = redis.Dial("tcp", "47.95.14.131:6379")
 			if e != nil {
 				panic(e.Error())
+			}
+			if _, e = conn.Do("AUTH", "IKongJi.com"); e != nil {
+				conn.Close()
+				return nil, e
+			}
+			if _, e = conn.Do("SELECT", 0); e != nil {
+				conn.Close()
+				return nil, e
 			}
 			return conn, e
 		},
